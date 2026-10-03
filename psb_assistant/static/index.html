@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#102c57">
+  <title>ПСБ · Ассистент по продуктам</title>
+  <link rel="stylesheet" href="/static/styles.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <header><a class="brand" href="/"><span class="brand-symbol">ПСБ</span><span>Ассистент по продуктам<small>Прототип · тестовое задание</small></span></a><a class="source" href="https://www.psbank.ru/" target="_blank" rel="noopener noreferrer">Сайт банка ↗</a></header>
+  <main>
+    <section class="hero"><div class="eyebrow"><span></span> Условия из первоисточника</div><h1>Разобраться в продуктах.<br><span>Выбрать осознанно.</span></h1><p class="intro">Найдите вклад, кредит или карту. Сравните условия и проверьте каждый факт на сайте ПСБ.</p>
+      <form id="ask-form"><label for="query" class="sr-only">Вопрос о продуктах банка</label><div class="input-wrap"><span class="search-icon">⌕</span><input id="query" name="query" placeholder="Что выгоднее — вклад в юанях или накопительный счет?" minlength="2" maxlength="1500" required autocomplete="off"><button id="ask-button" type="submit">Найти ответ <span>↗</span></button></div></form>
+      <div class="examples"><span>Например:</span><button type="button" data-query="Какие карты подходят пенсионерам?">Карта для пенсионера</button><button type="button" data-query="Есть ли продукты для участников СВО?">Продукты для участников СВО</button><button type="button" data-query="Какая ипотека есть для жителей Дальнего Востока?">Дальневосточная ипотека</button></div>
+    </section>
+    <section id="answer" class="answer hidden" aria-live="polite" aria-label="Ответ ассистента"></section>
+    <section class="catalog"><div class="section-top"><div><div class="eyebrow muted">База продуктов</div><h2>Условия рядом. Ссылки внутри.</h2></div><button type="button" id="refresh" class="secondary">↻ Обновить каталог</button></div>
+      <div class="catalog-tools"><div class="filters" role="group" aria-label="Категории"><button class="active" data-category="all" type="button">Все продукты</button><button data-category="deposits" type="button">Вклады и счета</button><button data-category="loans" type="button">Кредиты</button><button data-category="cards" type="button">Карты</button></div><span id="status" role="status">Проверяем базу…</span></div>
+      <div id="catalog" class="grid"></div>
+      <div id="compare-bar" class="compare-bar hidden"><span id="selected-count"></span><button id="clear-selection" type="button" class="secondary">Сбросить</button><button id="compare" type="button">Сравнить продукты →</button></div>
+    </section>
+    <aside class="note"><span>ⓘ</span><p>Ассистент показывает выдержки из опубликованных условий. Итоговая ставка и доступность льгот зависят от условий банка и вашей ситуации. Проверяйте дату загрузки и полный текст источника.</p></aside>
+  </main><footer><span>ПСБ · Прототип поискового ассистента</span><span>Каждый факт — со ссылкой на источник</span></footer>
+</body>
+</html>
