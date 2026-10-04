@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import sqlite3
 import time
 from pathlib import Path
@@ -51,3 +52,22 @@ class Cache:
         with self.connect() as db:
             rows = db.execute("SELECT product FROM pages WHERE product IS NOT NULL ORDER BY url").fetchall()
         return [Product.model_validate_json(row[0]) for row in rows]
+
+    def seed_products(self, snapshot_path: Path) -> int:
+        """Load a published parsed snapshot when the persistent volume is empty."""
+        if self.products() or not snapshot_path.exists():
+            return 0
+        payload = json.loads(snapshot_path.read_text(encoding="utf-8"))
+        products = [Product.model_validate_json(json.dumps(item, ensure_ascii=False)) for item in payload]
+        with self.connect() as db:
+            for product in products:
+                db.execute(
+                    "INSERT OR IGNORE INTO pages VALUES (?, ?, ?, ?)",
+                    (
+                        product.source_url,
+                        "",
+                        product.fetched_at.timestamp(),
+                        product.model_dump_json(),
+                    ),
+                )
+        return len(products)

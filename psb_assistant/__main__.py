@@ -34,6 +34,9 @@ def main() -> None:
         uvicorn.run(create_app(settings), host=args.host, port=args.port)
     else:
         cache = Cache(settings.cache_path)
+        seeded = cache.seed_products(settings.snapshot_path)
+        if seeded:
+            print(json.dumps({"snapshot_loaded": seeded}, ensure_ascii=False))
         if args.command == "crawl":
             report = Crawler(cache, PoliteHTTP(cache, settings.crawl_delay)).run(
                 force=args.force_update, max_per_category=args.max_per_category

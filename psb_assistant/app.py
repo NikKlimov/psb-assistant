@@ -34,6 +34,9 @@ class RefreshRequest(BaseModel):
 def create_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or Settings.from_env()
     cache = Cache(settings.cache_path)
+    seeded = cache.seed_products(settings.snapshot_path)
+    if seeded:
+        logger.info("snapshot_loaded products=%s path=%s", seeded, settings.snapshot_path)
     crawler = Crawler(cache, PoliteHTTP(cache, settings.crawl_delay))
     assistant = Assistant(cache, settings)
     refresh_lock = threading.Lock()

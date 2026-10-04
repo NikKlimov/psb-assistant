@@ -10,3 +10,4 @@ data/*
 !data/sources.json
 artifacts/*
 !artifacts/.gitkeep
+!artifacts/products.json

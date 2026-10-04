@@ -4,7 +4,7 @@ from datetime import UTC, datetime
 
 from psb_assistant.cache import Cache
 from psb_assistant.config import Settings
-from psb_assistant.llm import BaseLLMClient, ContentBlocked
+from psb_assistant.llm import BaseLLMClient, ContentBlocked, OpenAIClient
 from psb_assistant.models import Fact, Product
 from psb_assistant.service import (
     Assistant,
@@ -98,3 +98,25 @@ def test_provider_fact_projection_restores_exact_snapshot() -> None:
     raw = '{"products": [' + product_answer(product).model_copy(update={"params": {"ставка": Fact(value="99%", source_url=product.source_url)}}).model_dump_json() + "]}"
     projected = canonicalize_generation(raw, [product])
     assert projected.products[0].params["ставка"].value == "От 2,5% до 3,5%"
+
+
+def test_openai_adapter_uses_configured_model(monkeypatch) -> None:
+    captured: dict[str, object] = {}
+
+    class Response:
+        def json(self):
+            return {"choices": [{"message": {"content": '{"products": []}'}}]}
+
+        @property
+        def ok(self):
+            return True
+
+    def fake_post(url, **kwargs):
+        captured.update(kwargs)
+        return Response()
+
+    monkeypatch.setattr("psb_assistant.llm.requests.post", fake_post)
+    settings = Settings(openai_key="test-key", openai_model="gpt-4o-mini")
+    result = OpenAIClient(settings).generate("system", "user", 0.0)
+    assert result == '{"products": []}'
+    assert captured["json"]["model"] == "gpt-4o-mini"

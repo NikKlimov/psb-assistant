@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import sqlite3
 import time
 
@@ -50,6 +51,19 @@ def test_cache_expires_after_24_hours(tmp_path) -> None:
         db.execute("UPDATE pages SET fetched=? WHERE url=?", (time.time() - 24 * 60 * 60 - 1, url))
     assert cache.get(url) is None
     assert cache.get(url, fresh_only=False) is not None
+
+
+def test_cache_seeds_published_snapshot_only_when_empty(tmp_path) -> None:
+    product = DepositParser().parse(
+        "<h1>Вклад в юанях</h1><div class='page__content'>Подробные условия продукта для безопасного хранения накоплений. Процентная ставка 10%.</div>",
+        "https://www.psbank.ru/personal/saving/yuan",
+    )
+    snapshot = tmp_path / "products.json"
+    snapshot.write_text(json.dumps([product.model_dump(mode="json")]), encoding="utf-8")
+    cache = Cache(tmp_path / "cache.sqlite3")
+    assert cache.seed_products(snapshot) == 1
+    assert len(cache.products()) == 1
+    assert cache.seed_products(snapshot) == 0
 
 
 def test_fact_rejects_non_psbank_source() -> None:

@@ -10,12 +10,13 @@ from pydantic import BaseModel, ConfigDict, Field
 class Settings(BaseModel):
     model_config = ConfigDict(extra="forbid")
     cache_path: Path = Path("data/cache.sqlite3")
+    snapshot_path: Path = Path("artifacts/products.json")
     llm_provider: str = "extractive"
     fallback_provider: str = "extractive"
     openai_key: str = Field(default="", repr=False, exclude=True)
     openai_url: str = "https://api.openai.com/v1"
     openai_model: str = "gpt-4o-mini"
-    ollama_url: str = "http://localhost:11434"
+    ollama_url: str = "http://host.docker.internal:11434"
     ollama_model: str = "qwen2.5:7b"
     gigachat_credentials: str = Field(default="", repr=False, exclude=True)
     gigachat_url: str = "https://api.giga.chat/v1"
@@ -35,12 +36,13 @@ class Settings(BaseModel):
         load_dotenv()
         return cls(
             cache_path=Path(os.getenv("CACHE_PATH", "data/cache.sqlite3")),
+            snapshot_path=Path(os.getenv("SNAPSHOT_PATH", "artifacts/products.json")),
             llm_provider=os.getenv("LLM_PROVIDER", "extractive"),
             fallback_provider=os.getenv("LLM_FALLBACK_PROVIDER", "extractive"),
             openai_key=os.getenv("OPENAI_API_KEY", ""),
             openai_url=os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1"),
             openai_model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
-            ollama_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
+            ollama_url=os.getenv("OLLAMA_BASE_URL", "http://host.docker.internal:11434"),
             ollama_model=os.getenv("OLLAMA_MODEL", "qwen2.5:7b"),
             gigachat_credentials=os.getenv("GIGACHAT_CREDENTIALS", ""),
             gigachat_url=os.getenv("GIGACHAT_BASE_URL", "https://api.giga.chat/v1"),
