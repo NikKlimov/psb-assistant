@@ -17,5 +17,20 @@ services:
       start_period: 20s
       retries: 3
 
+  telegram:
+    profiles: ["telegram"]
+    build: .
+    env_file: .env
+    command: ["python", "-m", "psb_assistant", "telegram"]
+    volumes:
+      - psb-cache:/app/data
+      - ./artifacts:/app/artifacts:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      assistant:
+        condition: service_healthy
+    restart: unless-stopped
+
 volumes:
   psb-cache:

@@ -27,6 +27,8 @@ class Settings(BaseModel):
     yandex_folder_id: str = ""
     yandex_url: str = "https://ai.api.cloud.yandex.net/v1"
     yandex_model: str = "yandexgpt-5.1"
+    telegram_token: str = Field(default="", repr=False, exclude=True)
+    telegram_poll_timeout: int = Field(default=25, ge=1, le=50)
     llm_timeout: float = Field(default=45, ge=1, le=180)
     crawl_delay: float = Field(default=2, ge=1)
     auto_crawl: bool = True
@@ -53,6 +55,8 @@ class Settings(BaseModel):
             yandex_folder_id=os.getenv("YANDEX_FOLDER_ID", ""),
             yandex_url=os.getenv("YANDEX_BASE_URL", "https://ai.api.cloud.yandex.net/v1"),
             yandex_model=os.getenv("YANDEX_MODEL", "yandexgpt-5.1"),
+            telegram_token=os.getenv("TELEGRAM_BOT_TOKEN", ""),
+            telegram_poll_timeout=int(os.getenv("TELEGRAM_POLL_TIMEOUT", "25")),
             llm_timeout=float(os.getenv("LLM_TIMEOUT", "45")),
             crawl_delay=float(os.getenv("CRAWL_DELAY", "2")),
             auto_crawl=os.getenv("AUTO_CRAWL", "true").lower() == "true",

@@ -13,6 +13,7 @@ from psb_assistant.service import (
     product_answer,
     validate_grounding,
 )
+from psb_assistant.telegram_bot import render_answer
 
 
 class BlockedClient(BaseLLMClient):
@@ -120,3 +121,16 @@ def test_openai_adapter_uses_configured_model(monkeypatch) -> None:
     result = OpenAIClient(settings).generate("system", "user", 0.0)
     assert result == '{"products": []}'
     assert captured["json"]["model"] == "gpt-4o-mini"
+
+
+def test_telegram_renderer_escapes_dynamic_product_text(tmp_path) -> None:
+    base = sample_product()
+    product = base.model_copy(
+        update={"product_name": "Вклад <тест>", "summary": Fact(value="A & B", source_url=base.source_url)}
+    )
+    answer = Assistant(
+        Cache(tmp_path / "cache.sqlite3"), Settings(auto_crawl=False), primary=None, fallback=None
+    ).extractive([product], "search")
+    rendered = render_answer(answer)
+    assert "&lt;тест&gt;" in rendered
+    assert "A &amp; B" in rendered

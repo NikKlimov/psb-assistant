@@ -6,12 +6,10 @@ from dataclasses import asdict
 
 import uvicorn
 
-from psb_assistant.cache import Cache
 from psb_assistant.config import Settings
 from psb_assistant.crawler import Crawler
 from psb_assistant.http import PoliteHTTP
 from psb_assistant.logging_config import configure_logging
-from psb_assistant.service import Assistant
 
 
 def main() -> None:
@@ -25,6 +23,7 @@ def main() -> None:
     crawl.add_argument("--max-per-category", type=int, choices=range(1, 13), default=8)
     ask = commands.add_parser("ask")
     ask.add_argument("query")
+    commands.add_parser("telegram")
     args = parser.parse_args()
     settings = Settings.from_env()
     configure_logging()
@@ -32,6 +31,14 @@ def main() -> None:
         from psb_assistant.app import create_app
 
         uvicorn.run(create_app(settings), host=args.host, port=args.port)
+    elif args.command == "telegram":
+        from psb_assistant.cache import Cache
+        from psb_assistant.service import Assistant
+        from psb_assistant.telegram_bot import TelegramBot
+
+        cache = Cache(settings.cache_path)
+        cache.seed_products(settings.snapshot_path)
+        TelegramBot(Assistant(cache, settings), settings).run()
     else:
         cache = Cache(settings.cache_path)
         seeded = cache.seed_products(settings.snapshot_path)
